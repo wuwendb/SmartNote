@@ -1,0 +1,59 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.tox/
+.nox/
+
+# NodeJS / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# IDEs and Tools
+.vscode/
+.idea/
+*.suo
+*.ntvs
+*.njsproj
+*.sln
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Project specifics
+backend/.env
+backend/smartnote.db
+backend/uploads/
+
+notes_app_v2.db
+notes_history.db
+uploads/
+
+backend/.venv/
+backend/__pycache__/

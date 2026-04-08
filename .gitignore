@@ -59,3 +59,8 @@ backend/.venv/
 backend/__pycache__/
 *.db
 *.sqlite3
+
+frontend/release/
+frontend/out/
+node_modules/
+*.spec

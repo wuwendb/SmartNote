@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -57,3 +57,5 @@ uploads/
 
 backend/.venv/
 backend/__pycache__/
+*.db
+*.sqlite3

@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from passlib.context import CryptContext
 import jwt
 import os
+import json
 import base64
 import fitz # PyMuPDF
 from pptx import Presentation
@@ -197,12 +198,13 @@ def process_image(content: bytes, content_type: str, style: str):
     base64_image = base64.b64encode(content).decode("utf-8")
     prompt = f'''你是一个智能笔记整理助手。请按照【{style}】风格，提取以下图片中的文字内容，并将其整理为结构化的Markdown笔记。
 要求：
-1. 必须在笔记开头单独给出【一句话总结】（加粗标出）；
-2. 必须提取【核心关键词】（3-5个，用标签格式，如：#关键词）紧跟在总结下面；
-3. 保持原有主体信息准确无误；
-4. 为笔记添加合理的标题和章节层级；
-5. 对重点内容进行加粗或列表高亮提示；
-6. 如果笔记中包含数学公式，请务必使用 $ 包裹行内公式，使用 $$ 包裹块级公式（千万不要使用 \\( \\) 或 \\[ \\]）。'''
+1. 第一行必须输出以 # 开头的主标题（这是非常重要的一步）；
+2. 必须在标题下方单独给出【一句话总结】（加粗标出）；
+3. 必须提取【核心关键词】（3-5个，用标签格式，如：#关键词）紧跟在总结下面；
+4. 保持原有主体信息准确无误；
+5. 为笔记添加合理的章节层级；
+6. 对重点内容进行加粗或列表高亮提示；
+7. 如果笔记中包含数学公式，请务必使用 $ 包裹行内公式，使用 $$ 包裹块级公式（千万不要使用 \\( \\) 或 \\[ \\]）。'''
     
     response = client.chat.completions.create(
         model="glm-4v",
@@ -231,12 +233,13 @@ def process_text(text: str, style: str):
 
     prompt = f'''你是一个智能笔记整理助手。请按照【{style}】风格，将以下从文档(PPT/PDF)中提取的文本内容，整理为结构化的Markdown笔记。
 要求：
-1. 必须在笔记开头单独给出【一句话总结】（加粗标出）；
-2. 必须提取【核心关键词】（3-5个，用标签格式，如：#关键词）紧跟在总结下面；
-3. 保持原有主体信息准确无误；
-4. 为笔记添加合理的标题和章节层级；
-5. 对重点内容进行加粗或列表高亮提示；
-6. 如果笔记中包含数学公式，请务必使用 $ 包裹行内公式，使用 $$ 包裹块级公式（千万不要使用 \\( \\) 或 \\[ \\]）。
+1. 第一行必须输出以 # 开头的主标题（这是非常重要的一步）；
+2. 必须在标题下方单独给出【一句话总结】（加粗标出）；
+3. 必须提取【核心关键词】（3-5个，用标签格式，如：#关键词）紧跟在总结下面；
+4. 保持原有主体信息准确无误；
+5. 为笔记添加合理的章节层级；
+6. 对重点内容进行加粗或列表高亮提示；
+7. 如果笔记中包含数学公式，请务必使用 $ 包裹行内公式，使用 $$ 包裹块级公式（千万不要使用 \\( \\) 或 \\[ \\]）。
 
 原始内容：
 {text}'''
@@ -304,8 +307,25 @@ async def process_note(
         else:
             raise HTTPException(status_code=400, detail="不支持的文件格式。请上传图片、PDF或PPTX。")
             
+        # 自动提取Markdown中第一个真实标题作为Note的标题
+        import re
+        title_match = None
+        # 宽容的正则匹配，允许如 **# 标题** 或 # **标题** 等格式
+        for match in re.finditer(r'^[\*\s]*#{1,2}\s*[\*\s]*(.*?)(?=[\*\s]*(\n|$))', result, re.MULTILINE):
+            extracted = match.group(1).strip()
+            if "总结" not in extracted and "关键词" not in extracted and len(extracted) > 1:
+                title_match = match
+                break
+
+        if title_match:
+            generated_title = title_match.group(1).strip()
+            # 在提取后，将正文中的标题行移除，以免正文中出现重复的展示
+            result = result.replace(title_match.group(0), "", 1).strip()
+        else:
+            generated_title = file.filename
+
         # 3. 存入当前用户数据库
-        db_note = NoteRecord(filename=file.filename, file_url=file_url, style=style, category=category, content=result, user_id=current_user.id)
+        db_note = NoteRecord(filename=file.filename, title=generated_title, file_url=file_url, style=style, category=category, content=result, user_id=current_user.id)
         db.add(db_note)
         db.commit()
         db.refresh(db_note)
@@ -395,6 +415,101 @@ def toggle_public(note_id: int, is_public: bool, db: Session = Depends(get_db), 
     db.commit()
     return {"message": "鐘舵€佹洿鏂版垚鍔?", "is_public": note.is_public}
 
+
+@app.post("/api/notes/{note_id}/quiz")
+def generate_quiz(
+    note_id: int, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    note = db.query(NoteRecord).filter(NoteRecord.id == note_id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="笔记不存在")
+    
+    if not note.is_public and note.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="没有权限访问该笔记")
+
+    client = get_ai_client()
+    
+    prompt = f"""你是一个擅长提炼知识点的AI助教。请仔细阅读下面的笔记内容，并生成3道单项选择题。
+必须严格输出纯 JSON 数组格式（不要带有任何 ```json 或者其它说明语言）。
+格式要求如下：
+[
+  {{
+    "question": "问题是什么？",
+    "options": ["选项A的内容", "选项B的内容", "选项C的内容", "选项D的内容"],
+    "answer": 0,
+    "explanation": "为什么选A的简短解析"
+  }}
+]
+
+【笔记内容】：
+{note.content}
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="glm-4",
+            messages=[
+                {"role": "system", "content": "你是一个只会输出合法JSON数组的API，不输出任何其他字。"},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        answer = response.choices[0].message.content.strip()
+        if answer.startswith("```json"): answer = answer[7:]
+        elif answer.startswith("```"): answer = answer[3:]
+        if answer.endswith("```"): answer = answer[:-3]
+        
+        quiz_data = json.loads(answer.strip())
+        return quiz_data
+    except Exception as e:
+        print(f"Quiz Error: {str(e)}\nAI output was: {answer}")
+        raise HTTPException(status_code=500, detail="生成测验失败，笔记内容可能不足或格式错误")
+
+
+class NoteChatRequest(BaseModel):
+    message: str
+
+@app.post("/api/notes/{note_id}/chat")
+def chat_with_note(
+    note_id: int, 
+    chat_request: NoteChatRequest, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    note = db.query(NoteRecord).filter(NoteRecord.id == note_id).first()
+    if not note:
+        raise HTTPException(status_code=404, detail="笔记不存在")
+    
+    if not note.is_public and note.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="没有权限访问该笔记")
+
+    client = get_ai_client()
+    
+    prompt = f"""你是一个智能笔记助手。以下是用户的一篇笔记（可能包含代码或文字）。
+请基于提供的笔记内容，回答用户的问题。如果用户的提问超出了笔记内容，可以使用你的知识进行扩展，但请优先参考笔记。
+如果是代码，请在必要时以Markdown格式输出。
+
+【笔记标题】: {note.title}
+【笔记分类】: {note.category}
+【笔记内容】:
+{note.content}
+
+用户的问题是: {chat_request.message}"""
+
+    try:
+        response = client.chat.completions.create(
+            model="glm-4",
+            messages=[
+                {"role": "system", "content": "你是一个基于用户笔记内容的智能助手，请主要根据提供的笔记内容回答，语气要专业友好。"},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        answer = response.choices[0].message.content
+        return {"answer": answer}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 class CommentCreate(BaseModel):
     content: str
     parent_id: Optional[int] = None
@@ -447,6 +562,45 @@ def get_comments(note_id: int, db: Session = Depends(get_db)):
             "parent_id": c.parent_id
         })
     return result
+
+
+@app.delete("/api/notes/{note_id}")
+def delete_note(note_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_note = db.query(NoteRecord).filter(NoteRecord.id == note_id, NoteRecord.user_id == current_user.id).first()
+    if not db_note:
+        raise HTTPException(status_code=404, detail="笔记不存在或无权限删除")
+    
+    db.delete(db_note)
+    db.commit()
+    return {"message": "笔记已删除"}
+
+class NoteCreate(BaseModel):
+    title: str = "Untitled Note"
+    content: str
+    category: str = "未分类"
+    is_public: bool = False
+
+@app.post("/api/notes")
+def create_raw_note(note: NoteCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_note = NoteRecord(
+        title=note.title,
+        content=note.content,
+        category=note.category,
+        is_public=note.is_public,
+        user_id=current_user.id,
+        filename="Manual Note",
+        style="standard"
+    )
+    db.add(db_note)
+    db.commit()
+    db.refresh(db_note)
+    return {
+        "id": db_note.id, 
+        "title": db_note.title, 
+        "category": db_note.category, 
+        "message": "笔记创建成功"
+    }
+
 
 class NoteUpdate(BaseModel):
     title: str = None
@@ -504,6 +658,7 @@ async def upload_avatar(
         content = await file.read()
         import uuid
         import os
+        import json
         unique_filename = f"avatar_{uuid.uuid4()}_{file.filename}"
         file_path = os.path.join("uploads", unique_filename)
         with open(file_path, "wb") as f:

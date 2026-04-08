@@ -12,7 +12,7 @@ import NoteQuiz from './components/NoteQuiz';
 import UserProfile from './components/UserProfile';
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
@@ -22,13 +22,14 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('upload'); // 'upload', 'history' or 'community', 'detail'
   const [previousViewMode, setPreviousViewMode] = useState('upload'); 
-  const [selectedStyle, setSelectedStyle] = useState('标准');
+  const [selectedStyle, setSelectedStyle] = useState('课堂考点提炼');
   const [currentFileUrl, setCurrentFileUrl] = useState('');
   
   const [currentNoteId, setCurrentNoteId] = useState(null);
   const [currentTitle, setCurrentTitle] = useState('Untitled Note');
   const [currentCategory, setCurrentCategory] = useState('未分类');
   const [isEditing, setIsEditing] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNoteOwner, setIsNoteOwner] = useState(true);
   const [isPublic, setIsPublic] = useState(false);
   
@@ -39,7 +40,8 @@ function App() {
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
   const[authForm, setAuthForm] = useState({ username: '', password: '', contact: '' });
 
-  const styles = ['标准', '精简总结', '重点强化', '学术严谨'];
+  const styles = ['标准普通', '课堂考点提炼', '学术论文范式', '超精简归纳', '自定义...'];
+  const [customStyleInput, setCustomStyleInput] = useState('');
   const [customCategories, setCustomCategories] = useState(() => {
     try {
       const saved = localStorage.getItem('customCategories');
@@ -59,8 +61,12 @@ function App() {
   // Add interceptor to dynamically get token
   axiosInstance.interceptors.request.use((config) => {
     const currentToken = localStorage.getItem('token');
+    const zhipuKey = localStorage.getItem('zhipuApiKey');
     if (currentToken) {
       config.headers.Authorization = `Bearer ${currentToken}`;
+    }
+    if (zhipuKey) {
+      config.headers['x-zhipu-api-key'] = zhipuKey;
     }
     return config;
   });
@@ -153,7 +159,7 @@ function App() {
       setResult('');
       setPreview(null);
       setCurrentFileUrl('');
-      setSelectedFile(null);
+      setSelectedFiles([]);
       setCurrentTitle('Untitled Note');
       setCurrentCategory('未分类');
       setCurrentNoteId(null);
@@ -190,7 +196,7 @@ function App() {
     setUsername('');
     setResult('');
     setPreview(null);
-    setSelectedFile(null);
+    setSelectedFiles([]);
     setAuthForm({ username: '', password: '', contact: '' });
     setAuthMode('login');
     setViewMode('upload');
@@ -260,27 +266,34 @@ function App() {
   }
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      setSelectedFiles(prev => [...prev, ...files]);
       setError('');
       setResult('');
       setCurrentFileUrl('');
       
-      if (file.type.startsWith('image/')) {
+      const firstImage = files.find(f => f.type.startsWith('image/'));
+      if (firstImage) {
         const reader = new FileReader();
         reader.onloadend = () => {
           setPreview(reader.result);
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(firstImage);
       } else {
-         setPreview(null);
+         // keep old preview if exists
       }
     }
+    // reset input value to allow selecting the same file again if needed
+    e.target.value = null;
+  };
+
+  const removeSelectedFile = (indexToRemove) => {
+    setSelectedFiles(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
+    if (!selectedFiles || selectedFiles.length === 0) {
       setError('请先选择文件 (图片, PDF 或 PPTX)！');
       return;
     }
@@ -289,8 +302,13 @@ function App() {
     setError('');
     
     const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('style', selectedStyle);
+    selectedFiles.forEach((file, index) => {
+      formData.append('files', file); // 适配新版多文件后端
+      if (index === 0) {
+        formData.append('file', file); // 兼容旧版单文件后端，避免报错 422 Unprocessable Entity
+      }
+    });
+    formData.append('style', selectedStyle === '自定义...' ? customStyleInput : selectedStyle);
     formData.append('category', currentCategory);
 
     try {
@@ -310,7 +328,9 @@ function App() {
       setViewMode('upload');
       fetchHistory();
     } catch (err) {
-      setError(err.response?.data?.detail || '处理失败，请重试。' + err.message);
+      const errorDetail = err.response?.data?.detail;
+      const errorMsg = Array.isArray(errorDetail) ? JSON.stringify(errorDetail) : errorDetail;
+      setError(errorMsg || '处理失败，请重试。' + err.message);
     } finally {
       setLoading(false);
     }
@@ -657,6 +677,17 @@ function App() {
                                 </button>
                             ))}
                         </div>
+                        {selectedStyle === '自定义...' && (
+                          <div className="mt-3">
+                            <input
+                              type="text"
+                              value={customStyleInput}
+                              onChange={(e) => setCustomStyleInput(e.target.value)}
+                              placeholder="请输入您的自定义提取规则，例如：代码解析、日记等"
+                              className="w-full px-4 py-2 border-2 border-indigo-200 rounded-lg focus:border-indigo-500 focus:ring focus:ring-indigo-100 transition-all font-medium text-sm"
+                            />
+                          </div>
+                        )}
                     </div>
 
                     <div className="mb-5">
@@ -726,6 +757,7 @@ function App() {
                     <div className="relative border-2 border-dashed border-gray-200 rounded-xl p-6 hover:border-indigo-400 hover:bg-indigo-50/30 focus-within:border-indigo-500 transition-all bg-gray-50 text-center cursor-pointer group mb-5">
                         <input
                             type="file"
+                            multiple
                             accept="image/*,.pdf,.pptx"
                             onChange={handleFileChange}
                             className="absolute inset-0 z-10 w-full h-full opacity-0 cursor-pointer"
@@ -735,23 +767,43 @@ function App() {
                                 <svg className="w-7 h-7 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             </div>
                             <div className="text-gray-700">
-                                {selectedFile ? (
-                                    <span className="font-bold text-indigo-700 block truncate px-4">{selectedFile.name}</span>
-                                ) : (
-                                    <div className="space-y-1">
-                                        <p className="font-bold">点击或拖拽上传</p>
-                                        <p className="text-xs text-gray-500 font-medium">支持 图片 / PDF / PPTX</p>
-                                    </div>
-                                )}
+                                <div className="space-y-1">
+                                    <p className="font-bold">{selectedFiles.length > 0 ? '继续点击或拖拽添加文件' : '点击或拖拽上传，支持多选'}</p>
+                                    <p className="text-xs text-gray-500 font-medium">支持 图片 / PDF / PPTX 合并处理</p>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    {/* 已选文件列表区域 (可单独删除) */}
+                    {selectedFiles.length > 0 && (
+                        <div className="mb-5 space-y-2 max-h-48 overflow-y-auto pr-1">
+                            {selectedFiles.map((file, index) => (
+                                <div key={index} className="flex justify-between items-center bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:border-indigo-200 transition-colors">
+                                    <div className="flex items-center space-x-3 overflow-hidden">
+                                        <div className="bg-indigo-50 p-1.5 rounded">
+                                            <svg className="w-5 h-5 text-indigo-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-700 truncate">{file.name}</span>
+                                    </div>
+                                    <button 
+                                        type="button"
+                                        onClick={() => removeSelectedFile(index)} 
+                                        className="text-gray-400 hover:text-red-500 p-1.5 rounded-md hover:bg-red-50 transition-colors shrink-0 z-20 relative outline-none focus:ring-2 focus:ring-red-200"
+                                        title="移除文件"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     
                     <button
                         onClick={handleUpload}
-                        disabled={!selectedFile || loading}
+                        disabled={selectedFiles.length === 0 || loading}
                         className={`w-full py-3.5 rounded-xl font-bold text-base shadow-sm transition-all flex justify-center items-center ${
-                            !selectedFile || loading
+                            selectedFiles.length === 0 || loading
                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                 : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg transform hover:-translate-y-0.5'
                         }`}
@@ -798,10 +850,15 @@ function App() {
             </div>
             )}
 
+            {/* 若进入沉浸模式，在此添加黑色毛玻璃背景 */}
+            {isFullscreen && (
+                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[90] transition-opacity" onClick={() => setIsFullscreen(false)}></div>
+            )}
+
             {/* 右侧：结果区 */}
             {(result || viewMode === 'detail') && (
-                <div className={`flex flex-col gap-6 ${viewMode === 'detail' ? 'lg:col-span-12' : 'lg:col-span-8'}`}>
-                    <div className="bg-white p-0 rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative">
+                <div className={`flex flex-col gap-6 ${isFullscreen ? 'fixed inset-2 md:inset-6 z-[100] transition-all bg-white rounded-2xl shadow-2xl p-0' : (viewMode === 'detail' ? 'lg:col-span-12' : 'lg:col-span-8')}`}>
+                    <div className={`bg-white p-0 rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative ${isFullscreen ? 'h-full border-none shadow-none' : ''}`}>
                     {/* Header bar for result */}
                     <div className="flex justify-between items-start bg-gray-50/80 px-8 py-5 border-b border-gray-200">
                         <div className="flex items-start space-x-3 flex-1 min-w-0 mr-4">
@@ -901,6 +958,22 @@ function App() {
                                 </button>
                             )}
                             <button
+                                onClick={() => setIsFullscreen(!isFullscreen)}
+                                className={`px-4 py-2 border rounded-lg font-bold transition-all text-sm flex items-center shadow-sm ${isFullscreen ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                            >
+                                {isFullscreen ? (
+                                    <>
+                                        <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                                        还原
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                                        沉浸
+                                    </>
+                                )}
+                            </button>
+                            <button
                                 onClick={handleExport}
                                 className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 px-4 py-2 rounded-lg font-bold transition-all text-sm flex items-center shadow-sm hover:shadow"
                             >
@@ -920,11 +993,11 @@ function App() {
                     </div>
 
                     {/* Markdown Content */}
-                    <div className="p-8 overflow-y-auto max-h-[80vh] custom-scrollbar bg-white">
+                    <div className={`p-8 overflow-y-auto custom-scrollbar bg-white ${isFullscreen ? 'flex-1 h-full' : 'max-h-[80vh]'}`}>
                         {isEditing ? (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full min-h-[600px] w-full items-stretch">
+                            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 w-full items-stretch ${isFullscreen ? 'h-full' : 'h-full min-h-[600px]'}`}>
                                 {/* Editor Side */}
-                                <div className="flex flex-col h-[600px] rounded-lg shadow-sm border border-gray-200 overflow-hidden bg-slate-900">
+                                <div className={`flex flex-col rounded-lg shadow-sm border border-gray-200 overflow-hidden bg-slate-900 ${isFullscreen ? 'h-full' : 'h-[600px]'}`}>
                                     <MarkdownToolbar result={result} setResult={setResult} />
                                     <textarea 
                                         id="markdown-editor"
@@ -936,7 +1009,7 @@ function App() {
                                     />
                                 </div>
                                 {/* Preview Side */}
-                                <div className="flex flex-col h-[600px] rounded-lg shadow-sm border border-gray-200 overflow-hidden bg-white">
+                                <div className={`flex flex-col rounded-lg shadow-sm border border-gray-200 overflow-hidden bg-white ${isFullscreen ? 'h-full' : 'h-[600px]'}`}>
                                     <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center font-bold text-xs text-gray-500 uppercase tracking-wider">
                                         <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                         实时预览
@@ -946,7 +1019,7 @@ function App() {
                                             remarkPlugins={[remarkGfm, remarkMath]} 
                                             rehypePlugins={[rehypeKatex]}
                                         >
-                                            {(result || '*无预览内容...*').replace(new RegExp('\\\\((.*?)\\\\)', 'g'), '$$$1$$').replace(new RegExp('\\\\\[(.*?)\\\\]', 'gs'), '$$$$$1$$$$')}
+                                            {(result || '*无预览内容...*').replace(/\\\((.*?)\\\)/g, '$$$1$$').replace(/\\\[(.*?)\\\]/gs, '$$$$$1$$$$')}
                                         </ReactMarkdown>
                                     </div>
                                 </div>
@@ -957,7 +1030,7 @@ function App() {
                                 remarkPlugins={[remarkGfm, remarkMath]} 
                                 rehypePlugins={[rehypeKatex]}
                                 >
-                                {result.replace(new RegExp('\\\\\\\\((.*?)\\\\\\\\)', 'g'), '$$$1$$').replace(new RegExp('\\\\\\\\\\[(.*?)\\\\\\\\]', 'gs'), '$$$$$1$$$$')}
+                                {(result || '').replace(/\\\((.*?)\\\)/g, '$$$1$$').replace(/\\\[(.*?)\\\]/gs, '$$$$$1$$$$')}
                                 </ReactMarkdown>
                             </div>
                         )}

@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, status
+﻿from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, status, Header
 from typing import Optional, List
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -93,11 +93,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def get_ai_client():
+def get_ai_client(custom_api_key: str = None):
+    if custom_api_key and "." in custom_api_key:
+        return ZhipuAI(api_key=custom_api_key)
+    
     load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
     api_key = os.getenv("ZHIPU_API_KEY", "")
     if not api_key or "." not in api_key:
-        raise ValueError("请在 backend/.env 文件中配置正确的 ZHIPU_API_KEY (需要包含以 '.' 分隔的 id 和 secret)")
+        raise ValueError("请在 backend/.env 文件中配置 正确的 ZHIPU_API_KEY，或在应用的个人主页中绑定您的本地 API Key")
     return ZhipuAI(api_key=api_key)
 
 # ---------- Auth 路由 ----------
@@ -193,11 +196,28 @@ def change_password(data: PasswordChange, db: Session = Depends(get_db), current
     return {"message": "密码修改成功，请重新登录"}
 
 # ---------- 处理逻辑 ----------
-def process_image(content: bytes, content_type: str, style: str):
-    client = get_ai_client()
+def get_style_prompt(style: str) -> str:
+    if "学术论文" in style or "学术" in style:
+        return "▶【核心要求】：本材料倾向于学术论文。请严格按照【摘要与背景】、【核心方法】、【实验与数据】、【结论】等学术结构进行梳理，务必保留关键术语、公式与出处的准确性，保持论述严谨严肃。"
+    elif "课堂" in style or "考点" in style:
+        return "▶【核心要求】：本材料倾向于课堂学习。请将其中的知识点提炼为【期末复习大纲】：包含核心定义、原理及典型例题考法。采用清晰的星号或编号列表展开，极度方便背诵记忆。"
+    elif "精简" in style:
+        return "▶【核心要求】：请提取最精华、最本质的话语，无需冗长铺垫，砍掉所有边缘性解释，直接把「干货」和「结论」呈现出来，篇幅越少且信息量越大越好。"
+    elif not style or style in ["标准", "普通"]:
+        return "▶【核心要求】：请均衡提取各章节的核心内容，层级分明，条理清晰，作为一份标准的通用知识笔记。"
+    else:
+        return f"▶【用户的强制定制风格（最优先应用）】：{style}\n请务必严格遵照本条定制规则进行大纲与内容的摘要构建。"
+
+def process_image(content: bytes, content_type: str, style: str, api_key: str = None):
+    client = get_ai_client(api_key)
     base64_image = base64.b64encode(content).decode("utf-8")
-    prompt = f'''你是一个智能笔记整理助手。请按照【{style}】风格，提取以下图片中的文字内容，并将其整理为结构化的Markdown笔记。
-要求：
+    style_guide = get_style_prompt(style)
+    
+    prompt = f'''你是一个智能笔记整理助手。你需要提取以下图片中的文字内容，并将其归纳为结构化的Markdown笔记。
+
+{style_guide}
+
+【通用排版底线要求】
 1. 第一行必须输出以 # 开头的主标题（这是非常重要的一步）；
 2. 必须在标题下方单独给出【一句话总结】（加粗标出）；
 3. 必须提取【核心关键词】（3-5个，用标签格式，如：#关键词）紧跟在总结下面；
@@ -225,15 +245,20 @@ def process_image(content: bytes, content_type: str, style: str):
     )
     return response.choices[0].message.content
 
-def process_text(text: str, style: str):
-    client = get_ai_client()
+def process_text(text: str, style: str, api_key: str = None):
+    client = get_ai_client(api_key)
     max_chars = 100000
     if len(text) > max_chars:
         text = text[:max_chars] + "\n\n...（⚠️文档过长，超维保护触发，此处后续部分已截断）"
+    
+    style_guide = get_style_prompt(style)
 
-    prompt = f'''你是一个智能笔记整理助手。请按照【{style}】风格，将以下从文档(PPT/PDF)中提取的文本内容，整理为结构化的Markdown笔记。
-要求：
-1. 第一行必须输出以 # 开头的主标题（这是非常重要的一步）；
+    prompt = f'''你是一个智能笔记整理助手。你需要将以下从文档(PPT/PDF)中提取出的源文本，归纳为结构化的Markdown笔记。
+
+{style_guide}
+
+【通用排版底线要求】
+1. 第一行必须输出以 # 开头的主标题（这是最重要的约束）；
 2. 必须在标题下方单独给出【一句话总结】（加粗标出）；
 3. 必须提取【核心关键词】（3-5个，用标签格式，如：#关键词）紧跟在总结下面；
 4. 保持原有主体信息准确无误；
@@ -241,8 +266,9 @@ def process_text(text: str, style: str):
 6. 对重点内容进行加粗或列表高亮提示；
 7. 如果笔记中包含数学公式，请务必使用 $ 包裹行内公式，使用 $$ 包裹块级公式（千万不要使用 \\( \\) 或 \\[ \\]）。
 
-原始内容：
-{text}'''
+待整理文本如下：
+{text}
+'''
     
     response = client.chat.completions.create(
         model="glm-4",
@@ -273,44 +299,101 @@ def extract_text_from_pptx(content: bytes):
 
 @app.post("/api/process-note")
 async def process_note(
-    file: UploadFile = File(...), 
+    files: List[UploadFile] = File(...), 
     style: str = Form("标准"), 
     category: str = Form("未分类"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    x_zhipu_api_key: str = Header(None)
 ):
-    filename = file.filename.lower()
-    
     try:
-        content = await file.read()
+        accumulated_text = ""
+        base64_images = []
+        file_urls = []
+        file_names = []
         
-        # 1. 保存原图
-        unique_filename = f"{uuid.uuid4()}_{file.filename}"
-        file_path = os.path.join("uploads", unique_filename)
-        with open(file_path, "wb") as f:
-            f.write(content)
-        file_url = f"http://localhost:8000/uploads/{unique_filename}"
+        for file in files:
+            filename = file.filename.lower()
+            file_names.append(file.filename)
+            content = await file.read()
+            
+            # 1. 保存原始文件
+            unique_filename = f"{uuid.uuid4()}_{file.filename}"
+            file_path = os.path.join("uploads", unique_filename)
+            with open(file_path, "wb") as f:
+                f.write(content)
+            file_urls.append(f"http://localhost:8000/uploads/{unique_filename}")
+            
+            # 2. 提取内容
+            if file.content_type.startswith("image/"):
+                b64 = base64.b64encode(content).decode("utf-8")
+                base64_images.append((b64, file.content_type))
+            elif filename.endswith(".pdf") or file.content_type == "application/pdf":
+                extracted = extract_text_from_pdf(content)
+                if extracted.strip():
+                    accumulated_text += f"\n--- 文档：{file.filename} ---\n{extracted}"
+            elif filename.endswith(".pptx") or "presentation" in file.content_type:
+                extracted = extract_text_from_pptx(content)
+                if extracted.strip():
+                    accumulated_text += f"\n--- 演示文稿：{file.filename} ---\n{extracted}"
+            else:
+                raise HTTPException(status_code=400, detail=f"文件 {file.filename} 不支持，仅支持图片、PDF或PPTX。")
         
-        # 2. 调用大模型分析
-        if file.content_type.startswith("image/"):
-            result = process_image(content, file.content_type, style)
-        elif filename.endswith(".pdf") or file.content_type == "application/pdf":
-            text = extract_text_from_pdf(content)
-            if not text.strip():
-                raise ValueError("未能在PDF中提取到有效文本")
-            result = process_text(text, style)
-        elif filename.endswith(".pptx") or "presentation" in file.content_type:
-            text = extract_text_from_pptx(content)
-            if not text.strip():
-                raise ValueError("未能在PPT中提取到有效文本")
-            result = process_text(text, style)
+        # 统一去让大模型处理
+        client = get_ai_client(x_zhipu_api_key)
+        style_guide = get_style_prompt(style)
+        
+        if len(base64_images) > 0:
+            prompt = f'''你是一个智能笔记整理助手。你需要提取以下用户上传的图片与文档等混合内容，并将其归纳为结构化的Markdown笔记。
+{style_guide}
+【通用排版底线要求】
+1. 第一行首出以 # 开头的主标题
+2. 标题下方给出【一句话总结】（加粗标出）
+3. 提取【核心关键词】（3-5个，#关键词 格式）
+4. 其他重点加粗、分类清晰、数学公式用 $ / $$ 包裹。
+以下是提取出来的额外文档文本（如果没有可以忽略图片即可）：
+{accumulated_text}'''
+            
+            msg_content = [{"type": "text", "text": prompt}]
+            for b64, ctype in base64_images:
+                msg_content.append({"type": "image_url", "image_url": {"url": f"data:{ctype};base64,{b64}"}})
+            
+            response = client.chat.completions.create(
+                model="glm-4v",
+                messages=[{"role": "user", "content": msg_content}]
+            )
+            result = response.choices[0].message.content
         else:
-            raise HTTPException(status_code=400, detail="不支持的文件格式。请上传图片、PDF或PPTX。")
+            if not accumulated_text.strip():
+                raise ValueError("未能提取到任何有效文本或图片。")
+            max_chars = 100000
+            if len(accumulated_text) > max_chars:
+                accumulated_text = accumulated_text[:max_chars] + "\n\n...（⚠️文档过长，此处后续部分已截断）"
+            
+            prompt = f'''你是一个智能笔记整理助手。你需要将以下源文本，归纳为结构化的Markdown笔记。
+{style_guide}
+【排版底线要求】同上。
+待整理文本如下：
+{accumulated_text}'''
+
+            response = client.chat.completions.create(
+                model="glm-4",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            result = response.choices[0].message.content
+            
+        # 清理大模型可能带有的 ```markdown 与 ``` 的外包装
+        if result.strip().startswith("```markdown"):
+            result = result.strip()[11:]
+        elif result.strip().startswith("```"):
+            result = result.strip()[3:]
+        if result.endswith("```"):
+            result = result[:-3]
+        result = result.strip()
             
         # 自动提取Markdown中第一个真实标题作为Note的标题
         import re
         title_match = None
-        # 宽容的正则匹配，允许如 **# 标题** 或 # **标题** 等格式
         for match in re.finditer(r'^[\*\s]*#{1,2}\s*[\*\s]*(.*?)(?=[\*\s]*(\n|$))', result, re.MULTILINE):
             extracted = match.group(1).strip()
             if "总结" not in extracted and "关键词" not in extracted and len(extracted) > 1:
@@ -319,18 +402,19 @@ async def process_note(
 
         if title_match:
             generated_title = title_match.group(1).strip()
-            # 在提取后，将正文中的标题行移除，以免正文中出现重复的展示
             result = result.replace(title_match.group(0), "", 1).strip()
         else:
-            generated_title = file.filename
+            generated_title = "、".join(file_names)[:50]
 
         # 3. 存入当前用户数据库
-        db_note = NoteRecord(filename=file.filename, title=generated_title, file_url=file_url, style=style, category=category, content=result, user_id=current_user.id)
+        file_url_str = ",".join(file_urls)
+        db_note = NoteRecord(filename=",".join(file_names), title=generated_title, file_url=file_url_str, style=style, category=category, content=result, user_id=current_user.id)
         db.add(db_note)
         db.commit()
         db.refresh(db_note)
 
-        return {"note": result, "id": db_note.id, "title": db_note.title, "category": db_note.category, "file_url": file_url}
+        return {"note": result, "id": db_note.id, "title": db_note.title, "category": db_note.category, "file_url": file_url_str}
+
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -420,7 +504,8 @@ def toggle_public(note_id: int, is_public: bool, db: Session = Depends(get_db), 
 def generate_quiz(
     note_id: int, 
     db: Session = Depends(get_db), 
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    x_zhipu_api_key: str = Header(None)
 ):
     note = db.query(NoteRecord).filter(NoteRecord.id == note_id).first()
     if not note:
@@ -429,7 +514,7 @@ def generate_quiz(
     if not note.is_public and note.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="没有权限访问该笔记")
 
-    client = get_ai_client()
+    client = get_ai_client(x_zhipu_api_key)
     
     prompt = f"""你是一个擅长提炼知识点的AI助教。请仔细阅读下面的笔记内容，并生成3道单项选择题。
 必须严格输出纯 JSON 数组格式（不要带有任何 ```json 或者其它说明语言）。
@@ -475,7 +560,8 @@ def chat_with_note(
     note_id: int, 
     chat_request: NoteChatRequest, 
     db: Session = Depends(get_db), 
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    x_zhipu_api_key: str = Header(None)
 ):
     note = db.query(NoteRecord).filter(NoteRecord.id == note_id).first()
     if not note:
@@ -484,7 +570,7 @@ def chat_with_note(
     if not note.is_public and note.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="没有权限访问该笔记")
 
-    client = get_ai_client()
+    client = get_ai_client(x_zhipu_api_key)
     
     prompt = f"""你是一个智能笔记助手。以下是用户的一篇笔记（可能包含代码或文字）。
 请基于提供的笔记内容，回答用户的问题。如果用户的提问超出了笔记内容，可以使用你的知识进行扩展，但请优先参考笔记。

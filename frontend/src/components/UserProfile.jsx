@@ -8,6 +8,7 @@ function UserProfile({ token, onUpdateProfile, onBack, onPasswordChange }) {
     phone: '',
     avatar_url: ''
   });
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('zhipuApiKey') || '');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -46,6 +47,7 @@ function UserProfile({ token, onUpdateProfile, onBack, onPasswordChange }) {
     setMessage('');
     setError('');
     try {
+      localStorage.setItem('zhipuApiKey', apiKey);
       const res = await axiosInstance.put('/api/me', profile);
       setMessage('保存成功！');
       if (onUpdateProfile) {
@@ -148,17 +150,34 @@ function UserProfile({ token, onUpdateProfile, onBack, onPasswordChange }) {
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
               />
             </div>
-             <div className="space-y-3">
-              <label className="block text-sm font-bold text-gray-700">头像选择</label>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-gray-700 flex justify-between">
+                  <span>智谱 API Key (针对本地桌面版)</span>
+                  <a href="https://open.bigmodel.cn/" target="_blank" rel="noreferrer" className="text-indigo-500 hover:text-indigo-600 font-medium text-xs font-normal underline">去官网获取 Key</a>
+                </label>
+                <input 
+                  type="password" 
+                  name="apiKey" 
+                  value={apiKey} 
+                  onChange={(e) => setApiKey(e.target.value)} 
+                  placeholder="请粘贴您的 API Key，不填将无法使用 AI 功能"
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
+                />
+              </div>
               
-              {/* Preset Avatars */}
-              <div className="flex gap-3">
-                {avatars.map((url, i) => (
-                  <button 
-                    type="button"
-                    key={i}
-                    onClick={() => setProfile(prev => ({...prev, avatar_url: url}))}
-                    className={"w-12 h-12 rounded-full overflow-hidden border-2 transition-all shrink-0 " + (profile.avatar_url === url ? "border-indigo-500 ring-2 ring-indigo-200 shadow-md transform scale-110" : "border-gray-200 hover:border-indigo-300 hover:shadow-sm")}
+              <div className="space-y-3">
+                <label className="block text-sm font-bold text-gray-700">头像选择</label>
+                
+                {/* Preset Avatars */}
+                <div className="flex gap-3">
+                  {avatars.map((url, i) => (
+                    <button 
+                      type="button"
+                      key={i}
+                      onClick={() => setProfile(prev => ({...prev, avatar_url: url}))}
+                      className={"w-12 h-12 rounded-full overflow-hidden border-2 transition-all shrink-0 " + (profile.avatar_url === url ? "border-indigo-500 ring-2 ring-indigo-200 shadow-md transform scale-110" : "border-gray-200 hover:border-indigo-300 hover:shadow-sm")}
+
                   >
                      {url ? <img src={url} alt="avatar" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs">默认</div>}
                   </button>

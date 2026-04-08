@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 function NoteChat({ noteId, token }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -89,8 +93,13 @@ function NoteChat({ noteId, token }) {
                 : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'
             }`}>
               {msg.role === 'assistant' ? (
-                <div className="prose prose-sm prose-indigo max-w-none">
-                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                <div className="prose prose-sm prose-indigo max-w-none prose-p:leading-relaxed prose-pre:bg-gray-800 prose-pre:text-gray-100">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                  >
+                    {(msg.content || '').replace(/\\\((.*?)\\\)/g, '$$$1$$').replace(/\\\[(.*?)\\\]/gs, '$$$$$1$$$$')}
+                  </ReactMarkdown>
                 </div>
               ) : (
                 <div className="whitespace-pre-wrap">{msg.content}</div>

@@ -3,7 +3,15 @@ import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer' // 用于Task 5的构建分析
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    process.env.VITE_ANALYZE && visualizer({
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      filename: 'dist/analysis.html'
+    })
+  ].filter(Boolean),
   base: './',
   build: {
     // 代码分割策略

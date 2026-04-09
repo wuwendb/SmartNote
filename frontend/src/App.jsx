@@ -6,6 +6,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { lazyLoadMultiple } from './utils/lazyLoad.jsx';
+import { ThemeToggle } from './components/ui';
 
 // Lazy-load route-level components for code splitting
 const {
@@ -240,21 +241,21 @@ function App() {
              </div>
           </div>
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-2 font-sans">NoteSnap AI</h1>
-          <p className="text-center text-gray-500 mb-8 font-medium">{authMode === 'login' ? '欢迎回来，请登录' : '创建您的新账号'}</p>
+          <p className="text-center text-gray-500 dark:text-gray-400 mb-8 font-medium">{authMode === 'login' ? '欢迎回来，请登录' : '创建您的新账号'}</p>
           <form onSubmit={handleAuth} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">用户名</label>
-              <input type="text" required value={authForm.username} onChange={e => setAuthForm({...authForm, username: e.target.value})} className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors" placeholder="请输入用户名" />
+              <input type="text" required value={authForm.username} onChange={e => setAuthForm({...authForm, username: e.target.value})} className="mt-1 block w-full px-4 py-3 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors" placeholder="请输入用户名" />
             </div>
             {authMode === 'register' && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">联系方式 (邮箱/手机)</label>
-              <input type="text" required value={authForm.contact} onChange={e => setAuthForm({...authForm, contact: e.target.value})} className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors" placeholder="用于找回密码安全验证" />
+              <input type="text" required value={authForm.contact} onChange={e => setAuthForm({...authForm, contact: e.target.value})} className="mt-1 block w-full px-4 py-3 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors" placeholder="用于找回密码安全验证" />
             </div>
             )}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">密码</label>
-              <input type="password" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className="mt-1 block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors" placeholder="••••••••" />
+              <input type="password" required value={authForm.password} onChange={e => setAuthForm({...authForm, password: e.target.value})} className="mt-1 block w-full px-4 py-3 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-colors" placeholder="••••••••" />
             </div>
             {authMode === 'login' && (
               <div className="flex justify-end mt-1">
@@ -416,11 +417,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
           <div className="flex items-center space-x-4">
              <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-lg shadow-indigo-200">
                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -434,11 +435,11 @@ function App() {
           <div className="flex space-x-3 mt-4 md:mt-0 items-center">
               <button 
                 onClick={handleGoToProfile}
-                className="text-sm text-gray-500 font-bold mr-4 flex items-center hover:text-indigo-600 transition-colors px-2 py-1 rounded-md hover:bg-indigo-50"
+                className="text-sm text-gray-500 dark:text-gray-400 font-bold mr-4 flex items-center hover:text-indigo-600 transition-colors px-2 py-1 rounded-md hover:bg-indigo-50"
                 title="个人主页"
               >
                   {profileData?.avatar_url ? (
-                    <img src={profileData.avatar_url} alt="avatar" className="w-6 h-6 rounded-full mr-2 object-cover border border-gray-200" />
+                    <img src={profileData.avatar_url} alt="avatar" className="w-6 h-6 rounded-full mr-2 object-cover border border-gray-200 dark:border-slate-700" />
                   ) : (
                     <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                   )}
@@ -471,13 +472,14 @@ function App() {
               <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
               社区广场
             </button>
-            <button 
+            <button
               onClick={() => setViewMode('profile')}
               className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center ${viewMode === 'profile' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600'}`}
             >
               主页
             </button>
-            <button 
+            <ThemeToggle />
+            <button
               onClick={logout}
               className="px-4 py-2 rounded-lg font-bold text-sm bg-red-50 text-red-600 hover:bg-red-100 transition-all border border-red-100 ml-2"
             >
@@ -487,21 +489,21 @@ function App() {
         </div>
 
         {viewMode === 'history' && (
-           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+           <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-slate-700">
                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
                  <h2 className="text-xl font-bold text-gray-800 flex items-center mb-4 md:mb-0">
                      <svg className="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                      我的笔记库
                  </h2>
                  <div className="relative w-full md:w-64">
-                     <input type="text" placeholder="搜索历史笔记..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => {if(e.key === 'Enter') fetchHistory(searchQuery);}} className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm" />
+                     <input type="text" placeholder="搜索历史笔记..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => {if(e.key === 'Enter') fetchHistory(searchQuery);}} className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-sm" />
                      <svg className="w-4 h-4 absolute left-3.5 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                  </div>
                </div>
              <div className="flex flex-col md:flex-row gap-6">
                  {/* Sidebar */}
                  <div className="md:w-48 flex-shrink-0">
-                     <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">按分类查看</h3>
+                     <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">按分类查看</h3>
                      <ul className="space-y-1">
                          <li>
                              <button
@@ -527,9 +529,9 @@ function App() {
                  <div className="flex-1">
                      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                        {(historyFilterCategory ? history.filter(h => (h.category || '未分类') === historyFilterCategory) : history).map(item => (
-                 <div key={item.id} className="border border-gray-200 p-6 rounded-xl hover:shadow-xl hover:border-indigo-300 transition-all cursor-pointer bg-white group hover:-translate-y-1" onClick={() => loadHistoryDetail(item)}>
+                 <div key={item.id} className="border border-gray-200 dark:border-slate-700 p-6 rounded-xl hover:shadow-xl hover:border-indigo-300 transition-all cursor-pointer bg-white group hover:-translate-y-1" onClick={() => loadHistoryDetail(item)}>
                     <div className="flex justify-between items-start mb-3">
-                          <p className="font-bold text-gray-900 truncate pr-3 flex-1" title={item.title || item.filename}>{item.title || item.filename}</p>
+                          <p className="font-bold text-gray-900 dark:text-gray-100 truncate pr-3 flex-1" title={item.title || item.filename}>{item.title || item.filename}</p>
                             <div className="flex flex-col gap-1 items-end">
                                 <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-semibold whitespace-nowrap border border-indigo-100">{item.style}</span>
                                 {item.category && item.category !== '未分类' && (
@@ -549,7 +551,7 @@ function App() {
                           </span>
                           <button 
                             onClick={(e) => { e.stopPropagation(); togglePublicStatus(item.id, item.is_public); }}
-                            className={`px-3 py-1 rounded-full text-xs transition-colors border ${item.is_public ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'}`}
+                            className={`px-3 py-1 rounded-full text-xs transition-colors border ${item.is_public ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : 'bg-gray-50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:bg-gray-100'}`}
                           >
                             {item.is_public ? '已公开 ✅' : '设为公开'}
                           </button>
@@ -557,7 +559,7 @@ function App() {
                    </div>
                  ))}
                  {(historyFilterCategory ? history.filter(h => (h.category || "未分类") === historyFilterCategory) : history).length === 0 && (
-                     <div className="col-span-full py-16 text-center text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                     <div className="col-span-full py-16 text-center text-gray-500 dark:text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-300">
                          <svg className="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
                          <span className="font-semibold text-lg block">暂无笔记记录</span>
                          <span className="text-sm">快去提取你的第一份AI笔记吧</span>
@@ -577,14 +579,14 @@ function App() {
                      社区笔记广场
                  </h2>
                  <div className="relative w-full md:w-64">
-                     <input type="text" placeholder="搜索社区笔记..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => {if(e.key === 'Enter') fetchCommunityNotes(searchQuery);}} className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 shadow-sm" />
+                     <input type="text" placeholder="搜索社区笔记..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => {if(e.key === 'Enter') fetchCommunityNotes(searchQuery);}} className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 shadow-sm" />
                      <svg className="w-4 h-4 absolute left-3.5 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                  </div>
                </div>
              <div className="flex flex-col md:flex-row gap-6">
                  {/* Sidebar */}
                  <div className="md:w-48 flex-shrink-0">
-                     <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">按分类查看</h3>
+                     <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">按分类查看</h3>
                      <ul className="space-y-1">
                          <li>
                              <button
@@ -610,9 +612,9 @@ function App() {
                  <div className="flex-1">
                      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                         {(communityFilterCategory ? communityNotes.filter(h => (h.category || '未分类').toLowerCase() === communityFilterCategory.toLowerCase()) : communityNotes).map(item => (
-                 <div key={item.id} onClick={() => loadCommunityDetail(item.id)} className="border border-gray-200 p-6 rounded-xl hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer bg-white group hover:-translate-y-1">
+                 <div key={item.id} onClick={() => loadCommunityDetail(item.id)} className="border border-gray-200 dark:border-slate-700 p-6 rounded-xl hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer bg-white group hover:-translate-y-1">
                     <div className="flex justify-between items-start mb-3">
-                          <p className="font-bold text-gray-900 truncate pr-3 flex-1" title={item.title || item.filename}>{item.title || item.filename}</p>
+                          <p className="font-bold text-gray-900 dark:text-gray-100 truncate pr-3 flex-1" title={item.title || item.filename}>{item.title || item.filename}</p>
                             <div className="flex flex-col gap-1 items-end">
                                 <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-semibold whitespace-nowrap border border-indigo-100">{item.style}</span>
                                 {item.category && item.category !== '未分类' && (
@@ -621,7 +623,7 @@ function App() {
                             </div>
                     </div>
                     <div className="flex justify-between items-center mb-4">
-                        <p className="text-xs text-gray-500 flex items-center">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
                             <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             {item.author}
                         </p>
@@ -637,7 +639,7 @@ function App() {
                  </div>
                ))}
                {(communityFilterCategory ? communityNotes.filter(h => (h.category || "未分类").toLowerCase() === communityFilterCategory.toLowerCase()) : communityNotes).length === 0 && (
-                   <div className="col-span-full py-16 text-center text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                   <div className="col-span-full py-16 text-center text-gray-500 dark:text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-300">
                        <svg className="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                        <span className="font-semibold text-lg block">社区空空如也</span>
                        <span className="text-sm">去主页将有价值的笔记设为公开吧</span>
@@ -676,13 +678,13 @@ function App() {
                     </h2>
                     
                     <div className="mb-5">
-                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">AI 提取风格</label>
+                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">AI 提取风格</label>
                         <div className="grid grid-cols-2 gap-2">
                             {styles.map(style => (
                                 <button
                                     key={style}
                                     onClick={() => setSelectedStyle(style)}
-                                    className={`px-3 py-2.5 rounded-lg text-sm font-bold transition-all border ${selectedStyle === style ? 'bg-indigo-50/50 border-indigo-600 text-indigo-700 shadow-sm' : 'bg-white border-gray-200 text-gray-600 hover:border-indigo-300 hover:bg-indigo-50/20'}`}
+                                    className={`px-3 py-2.5 rounded-lg text-sm font-bold transition-all border ${selectedStyle === style ? 'bg-indigo-50/50 border-indigo-600 text-indigo-700 shadow-sm' : 'bg-white border-gray-200 dark:border-slate-700 text-gray-600 hover:border-indigo-300 hover:bg-indigo-50/20'}`}
                                 >
                                     {style}
                                 </button>
@@ -702,13 +704,13 @@ function App() {
                     </div>
 
                     <div className="mb-5">
-                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">笔记分类</label>
+                        <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">笔记分类</label>
                         <div className="grid grid-cols-3 gap-2 mb-3">
                             {customCategories.map(cat => (
                                 <div key={cat} className="relative group flex items-center justify-center w-full h-full">
                                     <button
                                         onClick={() => setCurrentCategory(cat)}
-                                        className={`w-full h-full px-2 py-2 rounded-lg text-xs font-bold transition-all border break-words ${currentCategory === cat ? 'bg-purple-50/50 border-purple-600 text-purple-700 shadow-[0_2px_8px_-2px_rgba(168,85,247,0.4)]' : 'bg-white border-gray-200 text-gray-600 hover:border-purple-300 hover:bg-purple-50/20'}`}
+                                        className={`w-full h-full px-2 py-2 rounded-lg text-xs font-bold transition-all border break-words ${currentCategory === cat ? 'bg-purple-50/50 border-purple-600 text-purple-700 shadow-[0_2px_8px_-2px_rgba(168,85,247,0.4)]' : 'bg-white border-gray-200 dark:border-slate-700 text-gray-600 hover:border-purple-300 hover:bg-purple-50/20'}`}
                                     >
                                         {cat}
                                     </button>
@@ -765,7 +767,7 @@ function App() {
                         </div>
                     </div>
 
-                    <div className="relative border-2 border-dashed border-gray-200 rounded-xl p-6 hover:border-indigo-400 hover:bg-indigo-50/30 focus-within:border-indigo-500 transition-all bg-gray-50 text-center cursor-pointer group mb-5">
+                    <div className="relative border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl p-6 hover:border-indigo-400 hover:bg-indigo-50/30 focus-within:border-indigo-500 transition-all bg-gray-50 text-center cursor-pointer group mb-5">
                         <input
                             type="file"
                             multiple
@@ -780,7 +782,7 @@ function App() {
                             <div className="text-gray-700">
                                 <div className="space-y-1">
                                     <p className="font-bold">{selectedFiles.length > 0 ? '继续点击或拖拽添加文件' : '点击或拖拽上传，支持多选'}</p>
-                                    <p className="text-xs text-gray-500 font-medium">支持 图片 / PDF / PPTX 合并处理</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">支持 图片 / PDF / PPTX 合并处理</p>
                                 </div>
                             </div>
                         </div>
@@ -790,7 +792,7 @@ function App() {
                     {selectedFiles.length > 0 && (
                         <div className="mb-5 space-y-2 max-h-48 overflow-y-auto pr-1">
                             {selectedFiles.map((file, index) => (
-                                <div key={index} className="flex justify-between items-center bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:border-indigo-200 transition-colors">
+                                <div key={index} className="flex justify-between items-center bg-white border border-gray-200 dark:border-slate-700 rounded-lg p-3 shadow-sm hover:border-indigo-200 transition-colors">
                                     <div className="flex items-center space-x-3 overflow-hidden">
                                         <div className="bg-indigo-50 p-1.5 rounded">
                                             <svg className="w-5 h-5 text-indigo-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -844,9 +846,9 @@ function App() {
 
                 {/* File Preview Panel */}
                 {(preview || currentFileUrl) && (
-                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 relative group hidden lg:block">
-                        <h2 className="text-xs font-bold mb-3 text-gray-500 uppercase tracking-wider">原始文档预览</h2>
-                        <div className="bg-gray-50/50 rounded-xl overflow-hidden flex items-center justify-center min-h-[250px] border border-gray-200">
+                    <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 relative group hidden lg:block">
+                        <h2 className="text-xs font-bold mb-3 text-gray-500 dark:text-gray-400 uppercase tracking-wider">原始文档预览</h2>
+                        <div className="bg-gray-50/50 rounded-xl overflow-hidden flex items-center justify-center min-h-[250px] border border-gray-200 dark:border-slate-700">
                             {(preview || (currentFileUrl && currentFileUrl.match(/\.(jpeg|jpg|gif|png)$/i))) ? (
                                 <img src={preview || currentFileUrl} alt="Preview" className="max-w-full max-h-[400px] object-contain rounded-lg" />
                             ) : currentFileUrl ? (
@@ -869,9 +871,9 @@ function App() {
             {/* 右侧：结果区 */}
             {(result || viewMode === 'detail') && (
                 <div className={`flex flex-col gap-6 ${isFullscreen ? 'fixed inset-2 md:inset-6 z-[100] transition-all bg-white rounded-2xl shadow-2xl p-0' : (viewMode === 'detail' ? 'lg:col-span-12' : 'lg:col-span-8')}`}>
-                    <div className={`bg-white p-0 rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative ${isFullscreen ? 'h-full border-none shadow-none' : ''}`}>
+                    <div className={`bg-white p-0 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden relative ${isFullscreen ? 'h-full border-none shadow-none' : ''}`}>
                     {/* Header bar for result */}
-                    <div className="flex justify-between items-start bg-gray-50/80 px-8 py-5 border-b border-gray-200">
+                    <div className="flex justify-between items-start bg-gray-50/80 px-8 py-5 border-b border-gray-200 dark:border-slate-700">
                         <div className="flex items-start space-x-3 flex-1 min-w-0 mr-4">
                             {viewMode === 'detail' && (
                                   <button onClick={() => { setViewMode(previousViewMode); if(previousViewMode==='history') fetchHistory(searchQuery); else if(previousViewMode==='community') fetchCommunityNotes(searchQuery); }} className="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 mr-2 transition-colors cursor-pointer" title="返回列表">
@@ -887,10 +889,10 @@ function App() {
                                         type="text" 
                                         value={currentTitle} 
                                         onChange={e => setCurrentTitle(e.target.value)} 
-                                        className="text-lg font-bold text-gray-900 m-0 w-full bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-indigo-500" 
+                                        className="text-lg font-bold text-gray-900 dark:text-gray-100 m-0 w-full bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-indigo-500" 
                                     />
                                 ) : (
-                                    <h2 className="text-lg font-bold text-gray-900 m-0">{currentTitle}</h2>
+                                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 m-0">{currentTitle}</h2>
                                 )}
                                   <div className="flex flex-wrap items-center gap-1.5 mt-2 w-full">
                                         <span className="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded whitespace-nowrap self-start mt-0.5">{selectedStyle}风格</span>
@@ -900,7 +902,7 @@ function App() {
                                                     <div 
                                                         key={cat} 
                                                         onClick={() => setCurrentCategory(cat)} 
-                                                        className={`group relative flex items-center px-3 py-1 rounded-full cursor-pointer border text-xs font-bold transition-all ${currentCategory === cat ? 'bg-purple-100 border-purple-300 text-purple-800 shadow-[0_2px_8px_-2px_rgba(168,85,247,0.4)]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                                                        className={`group relative flex items-center px-3 py-1 rounded-full cursor-pointer border text-xs font-bold transition-all ${currentCategory === cat ? 'bg-purple-100 border-purple-300 text-purple-800 shadow-[0_2px_8px_-2px_rgba(168,85,247,0.4)]' : 'bg-white border-gray-200 dark:border-slate-700 text-gray-600 hover:bg-gray-50'}`}
                                                     >
                                                         <span>{cat}</span>
                                                         <span 
@@ -949,7 +951,7 @@ function App() {
                                       await togglePublicStatus(currentNoteId, isPublic);
                                     } catch (e) {}
                                   }}
-                                  className={`px-4 py-2 border rounded-lg font-bold transition-all text-sm flex items-center shadow-sm ${isPublic ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'}`}
+                                  className={`px-4 py-2 border rounded-lg font-bold transition-all text-sm flex items-center shadow-sm ${isPublic ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : 'bg-gray-50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-slate-700 hover:bg-gray-100'}`}
                                 >
                                   {isPublic ? '已公开 👍' : '设为公开'}
                                 </button>
@@ -986,9 +988,9 @@ function App() {
                             </button>
                             <button
                                 onClick={handleExport}
-                                className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 px-4 py-2 rounded-lg font-bold transition-all text-sm flex items-center shadow-sm hover:shadow"
+                                className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-100 px-4 py-2 rounded-lg font-bold transition-all text-sm flex items-center shadow-sm hover:shadow"
                             >
-                                <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                <svg className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                                 导出 MD
                             </button>
                             {currentNoteId && isNoteOwner && (
@@ -1008,7 +1010,7 @@ function App() {
                         {isEditing ? (
                             <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 w-full items-stretch ${isFullscreen ? 'h-full' : 'h-full min-h-[600px]'}`}>
                                 {/* Editor Side */}
-                                <div className={`flex flex-col rounded-lg shadow-sm border border-gray-200 overflow-hidden bg-slate-900 ${isFullscreen ? 'h-full' : 'h-[600px]'}`}>
+                                <div className={`flex flex-col rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden bg-slate-900 ${isFullscreen ? 'h-full' : 'h-[600px]'}`}>
                                     <MarkdownToolbar result={result} setResult={setResult} />
                                     <textarea 
                                         id="markdown-editor"
@@ -1020,8 +1022,8 @@ function App() {
                                     />
                                 </div>
                                 {/* Preview Side */}
-                                <div className={`flex flex-col rounded-lg shadow-sm border border-gray-200 overflow-hidden bg-white ${isFullscreen ? 'h-full' : 'h-[600px]'}`}>
-                                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center font-bold text-xs text-gray-500 uppercase tracking-wider">
+                                <div className={`flex flex-col rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 overflow-hidden bg-white ${isFullscreen ? 'h-full' : 'h-[600px]'}`}>
+                                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex items-center font-bold text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                         <svg className="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                         实时预览
                                     </div>
@@ -1054,7 +1056,7 @@ function App() {
                             <NoteQuiz noteId={currentNoteId} token={token} />
                         </div>
                         {previousViewMode === 'community' && (
-                            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 mt-8">
+                            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 mt-8">
                                 <CommentSection noteId={currentNoteId} token={token} currentUsername={username} />
                             </div>
                         )}

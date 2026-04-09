@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer' // 用于Task 5的构建分析
 
 export default defineConfig({
@@ -13,6 +14,11 @@ export default defineConfig({
     })
   ].filter(Boolean),
   base: './',
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   build: {
     // 代码分割策略
     rollupOptions: {

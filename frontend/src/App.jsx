@@ -234,7 +234,7 @@ function App() {
   if (!token) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
+        <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 dark:border-slate-700">
           <div className="flex justify-center mb-8">
              <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-200">
                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -529,7 +529,7 @@ function App() {
                  <div className="flex-1">
                      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                        {(historyFilterCategory ? history.filter(h => (h.category || '未分类') === historyFilterCategory) : history).map(item => (
-                 <div key={item.id} className="border border-gray-200 dark:border-slate-700 p-6 rounded-xl hover:shadow-xl hover:border-indigo-300 transition-all cursor-pointer bg-white group hover:-translate-y-1" onClick={() => loadHistoryDetail(item)}>
+                 <div key={item.id} className="border border-gray-200 dark:border-slate-700 p-6 rounded-xl hover:shadow-xl hover:border-indigo-300 transition-all cursor-pointer bg-white dark:bg-slate-800 group hover:-translate-y-1" onClick={() => loadHistoryDetail(item)}>
                     <div className="flex justify-between items-start mb-3">
                           <p className="font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 truncate pr-3 flex-1" title={item.title || item.filename}>{item.title || item.filename}</p>
                             <div className="flex flex-col gap-1 items-end">
@@ -572,7 +572,7 @@ function App() {
           )}
 
         {viewMode === 'community' && (
-           <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+           <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-slate-700">
                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
                  <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center mb-4 md:mb-0">
                      <svg className="w-5 h-5 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
@@ -612,7 +612,7 @@ function App() {
                  <div className="flex-1">
                      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
                         {(communityFilterCategory ? communityNotes.filter(h => (h.category || '未分类').toLowerCase() === communityFilterCategory.toLowerCase()) : communityNotes).map(item => (
-                 <div key={item.id} onClick={() => loadCommunityDetail(item.id)} className="border border-gray-200 dark:border-slate-700 p-6 rounded-xl hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer bg-white group hover:-translate-y-1">
+                 <div key={item.id} onClick={() => loadCommunityDetail(item.id)} className="border border-gray-200 dark:border-slate-700 p-6 rounded-xl hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer bg-white dark:bg-slate-800 group hover:-translate-y-1">
                     <div className="flex justify-between items-start mb-3">
                           <p className="font-bold text-gray-900 dark:text-gray-100 dark:text-gray-100 truncate pr-3 flex-1" title={item.title || item.filename}>{item.title || item.filename}</p>
                             <div className="flex flex-col gap-1 items-end">
@@ -671,7 +671,7 @@ function App() {
             {viewMode === 'upload' && (
             <div className={`space-y-6 ${result || preview || currentFileUrl ? 'lg:col-span-4' : 'lg:col-span-1 border border-transparent'}`}>
                 {/* Upload Panel */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 hover:shadow-md transition">
                     <h2 className="text-lg font-bold mb-5 text-gray-800 dark:text-gray-100 flex items-center">
                          <svg className="w-5 h-5 mr-2 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                          上传与设置
@@ -870,8 +870,8 @@ function App() {
 
             {/* 右侧：结果区 */}
             {(result || viewMode === 'detail') && (
-                <div className={`flex flex-col gap-6 ${isFullscreen ? 'fixed inset-2 md:inset-6 z-[100] transition-all bg-white rounded-2xl shadow-2xl p-0' : (viewMode === 'detail' ? 'lg:col-span-12' : 'lg:col-span-8')}`}>
-                    <div className={`bg-white p-0 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden relative ${isFullscreen ? 'h-full border-none shadow-none' : ''}`}>
+                <div className={`flex flex-col gap-6 ${isFullscreen ? 'fixed inset-2 md:inset-6 z-[100] transition-all bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-0' : (viewMode === 'detail' ? 'lg:col-span-12' : 'lg:col-span-8')}`}>
+                    <div className={`bg-white dark:bg-slate-800 p-0 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden relative ${isFullscreen ? 'h-full border-none shadow-none' : ''}`}>
                     {/* Header bar for result */}
                     <div className="flex justify-between items-start bg-gray-50/80 px-8 py-5 border-b border-gray-200 dark:border-slate-700">
                         <div className="flex items-start space-x-3 flex-1 min-w-0 mr-4">
@@ -1027,7 +1027,7 @@ function App() {
                                         <svg className="w-4 h-4 mr-2 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                         实时预览
                                     </div>
-                                    <div className="p-6 overflow-y-auto flex-1 prose prose-indigo max-w-none prose-headings:font-bold prose-h1:text-xl prose-h2:text-lg prose-a:text-indigo-600 dark:text-indigo-400 prose-img:rounded-xl bg-white w-full">
+                                    <div className="p-6 overflow-y-auto flex-1 prose prose-indigo max-w-none prose-headings:font-bold prose-h1:text-xl prose-h2:text-lg prose-a:text-indigo-600 dark:text-indigo-400 prose-img:rounded-xl bg-white dark:bg-slate-800 w-full">
                                         <ReactMarkdown 
                                             remarkPlugins={[remarkGfm, remarkMath]} 
                                             rehypePlugins={[rehypeKatex]}

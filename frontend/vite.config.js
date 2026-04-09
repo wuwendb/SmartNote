@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { visualizer } from 'rollup-plugin-visualizer'
+import { visualizer } from 'rollup-plugin-visualizer' // 用于Task 5的构建分析
 
 export default defineConfig({
   plugins: [react()],
@@ -12,7 +12,7 @@ export default defineConfig({
         // 将node_modules中的库分离到vendor chunk
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            if (id.includes('react-dom') || id.includes('react-router-dom') || /react[\/\\]/.test(id)) {
               return 'vendor-react'
             } else if (id.includes('react-markdown') || id.includes('remark') || id.includes('rehype')) {
               return 'vendor-markdown'
@@ -33,7 +33,7 @@ export default defineConfig({
           const ext = info[info.length - 1]
           if (/png|jpe?g|gif|tiff|bmp|ico/i.test(ext)) {
             return `images/[name]-[hash][extname]`
-          } else if (/woff|woff2|eot|ttf|otf/.test(ext)) {
+          } else if (/woff|woff2|eot|ttf|otf/i.test(ext)) {
             return `fonts/[name]-[hash][extname]`
           } else if (ext === 'css') {
             return `css/[name]-[hash][extname]`
@@ -63,8 +63,7 @@ export default defineConfig({
   },
   // 开发服务器配置
   server: {
-    // 关闭预扫描可加快开发启动
-    preTransformRequests: false,
+    // 使用Vite默认的开发服务器配置
   },
   // 优化依赖预加载
   optimizeDeps: {

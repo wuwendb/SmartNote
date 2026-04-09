@@ -7,11 +7,16 @@ import { lazy, Suspense } from 'react'
  * @returns {Object} { Component, Wrapper } - Component为lazy组件，Wrapper为包装后的Suspense包装组件
  */
 export function lazyLoad(importStatement, fallback = null) {
-  if (!importStatement || typeof importStatement.then !== 'function') {
-    console.warn('lazyLoad: importStatement must be a Promise from dynamic import()')
+  // Handle both Promise and function inputs
+  const lazyFn = typeof importStatement === 'function'
+    ? importStatement
+    : () => importStatement
+
+  if (!lazyFn) {
+    console.warn('lazyLoad: importStatement must be a Promise or function from dynamic import()')
   }
 
-  const Component = lazy(() => importStatement)
+  const Component = lazy(lazyFn)
 
   const Wrapper = (props) => (
     <Suspense fallback={fallback || <div className="p-4 text-center">加载中...</div>}>

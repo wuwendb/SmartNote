@@ -70,7 +70,7 @@ function UserProfile({ token, onUpdateProfile, onBack, onPasswordChange }) {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="max-w-3xl mx-auto w-full bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-8 text-white relative">
         <div className="mt-4 flex items-end space-x-6">
           <label className="relative w-24 h-24 rounded-full bg-white border-4 border-white/30 shadow-lg flex items-center justify-center overflow-hidden text-indigo-500 font-bold text-4xl shrink-0 cursor-pointer group">
@@ -110,44 +110,44 @@ function UserProfile({ token, onUpdateProfile, onBack, onPasswordChange }) {
       </div>
 
       <div className="p-8">
-        {message && <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-xl flex items-center font-bold text-sm"><svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>{message}</div>}
-        {error && <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-xl flex items-center font-bold text-sm"><svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>{error}</div>}
+        {message && <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-xl flex items-center font-bold text-sm"><svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>{message}</div>}
+        {error && <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-xl flex items-center font-bold text-sm"><svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>{error}</div>}
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700">用户名</label>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-200">用户名</label>
               <input 
                 type="text" 
                 name="username" 
                 value={profile.username} 
                 onChange={handleChange} 
                 required
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all font-medium"
               />
             </div>
             
              <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700">电子邮箱</label>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-200">电子邮箱</label>
               <input 
                 type="email" 
                 name="email" 
                 value={profile.email} 
                 onChange={handleChange} 
                 placeholder="example@email.com"
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all font-medium"
               />
             </div>
             
             <div className="space-y-2">
-              <label className="block text-sm font-bold text-gray-700">手机号码</label>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-200">手机号码</label>
               <input 
                 type="tel" 
                 name="phone" 
                 value={profile.phone} 
                 onChange={handleChange} 
                 placeholder="您的联系电话"
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all font-medium"
               />
             </div>
 
@@ -162,12 +162,12 @@ function UserProfile({ token, onUpdateProfile, onBack, onPasswordChange }) {
                   value={apiKey} 
                   onChange={(e) => setApiKey(e.target.value)} 
                   placeholder="请粘贴您的 API Key，不填将无法使用 AI 功能"
-                  className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all font-medium"
+                  className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all font-medium"
                 />
               </div>
               
               <div className="space-y-3">
-                <label className="block text-sm font-bold text-gray-700">头像选择</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-200">头像选择</label>
                 
                 {/* Preset Avatars */}
                 <div className="flex gap-3">
@@ -179,7 +179,7 @@ function UserProfile({ token, onUpdateProfile, onBack, onPasswordChange }) {
                       className={"w-12 h-12 rounded-full overflow-hidden border-2 transition-all shrink-0 " + (profile.avatar_url === url ? "border-indigo-500 ring-2 ring-indigo-200 shadow-md transform scale-110" : "border-gray-200 hover:border-indigo-300 hover:shadow-sm")}
 
                   >
-                     {url ? <img src={url} alt="avatar" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 font-bold text-xs">默认</div>}
+                     {url ? <img src={url} alt="avatar" /> : <div className="w-full h-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-gray-400 dark:text-gray-500 font-bold text-xs">默认</div>}
                   </button>
                 ))}
               </div>
@@ -215,7 +215,7 @@ function UserProfile({ token, onUpdateProfile, onBack, onPasswordChange }) {
             </div>
           </div>
           
-          <div className="pt-6 border-t border-gray-100 flex justify-between items-center text-sm">
+          <div className="pt-6 border-t border-gray-100 dark:border-slate-700 flex justify-between items-center text-sm">
              <button 
                 type="button"
                 onClick={onPasswordChange}

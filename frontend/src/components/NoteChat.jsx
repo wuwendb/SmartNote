@@ -84,13 +84,13 @@ function NoteChat({ noteId, token }) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 scroll-smooth">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-slate-900 scroll-smooth">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
               msg.role === 'user' 
                 ? 'bg-indigo-600 text-white rounded-br-none shadow-sm' 
-                : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none shadow-sm'
+                : 'bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm'
             }`}>
               {msg.role === 'assistant' ? (
                 <div className="prose prose-sm prose-indigo max-w-none prose-p:leading-relaxed prose-pre:bg-gray-800 prose-pre:text-gray-100">
@@ -109,7 +109,7 @@ function NoteChat({ noteId, token }) {
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white border border-gray-100 text-gray-500 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm inline-flex space-x-1.5 items-center">
+            <div className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-gray-500 dark:text-gray-400 rounded-2xl rounded-bl-none px-4 py-3 shadow-sm inline-flex space-x-1.5 items-center">
               <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
               <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
               <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -120,7 +120,7 @@ function NoteChat({ noteId, token }) {
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t border-gray-100 px-4 py-3">
+      <div className="bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 px-4 py-3">
         <form onSubmit={handleSubmit} className="flex items-end space-x-2">
           <textarea
             value={input}

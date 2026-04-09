@@ -94,19 +94,19 @@ function CommentSection({ noteId, token, currentUsername }) {
               <img 
                 src={parent.author_avatar} 
                 alt={parent.author} 
-                className="w-10 h-10 rounded-full object-cover border border-gray-200" 
+                className="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-slate-700" 
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xl border border-indigo-200">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-700 dark:text-indigo-400 font-bold text-xl border border-indigo-200 dark:border-indigo-900/50">
                 {parent.author.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="bg-gray-50 p-5 rounded-2xl rounded-tl-none border border-gray-200 relative group">
+            <div className="bg-gray-50 dark:bg-slate-800 p-5 rounded-2xl rounded-tl-none border border-gray-200 dark:border-slate-700 relative group">
               <div className="flex items-baseline justify-between mb-2">
-                <span className="font-bold text-sm text-gray-900">{parent.author}</span>
-                <span className="text-xs text-gray-400">{new Date(parent.created_at).toLocaleString()}</span>
+                <span className="font-bold text-sm text-gray-900 dark:text-gray-100">{parent.author}</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">{new Date(parent.created_at).toLocaleString()}</span>
               </div>
               <p className="text-gray-800 text-[15px] whitespace-pre-wrap">{parent.content}</p>
               <div className="flex justify-end mt-2 h-4">
@@ -121,7 +121,7 @@ function CommentSection({ noteId, token, currentUsername }) {
             
               {/* Render Replies */}
               {threadReplies.length > 0 && (
-                <div className="mt-3 bg-gray-100 rounded-xl p-3 space-y-2">
+                <div className="mt-3 bg-gray-100 dark:bg-slate-700 rounded-xl p-3 space-y-2">
                   {threadReplies.map(reply => {
                     const repliedTo = commentMap.get(reply.parent_id);
                     // Decide whether to show "回复 @User": only if it's NOT directly replying to the root
@@ -134,7 +134,7 @@ function CommentSection({ noteId, token, currentUsername }) {
                               <img 
                                 src={reply.author_avatar} 
                                 alt={reply.author} 
-                                className="w-5 h-5 rounded-full object-cover border border-gray-200" 
+                                className="w-5 h-5 rounded-full object-cover border border-gray-200 dark:border-slate-700" 
                               />
                             ) : (
                               <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-[10px] border border-indigo-200">
@@ -147,11 +147,11 @@ function CommentSection({ noteId, token, currentUsername }) {
                               <span className="font-bold text-indigo-600">{reply.author}</span>
                               {showReplyTo && (
                                 <>
-                                  <span className="text-gray-500 mx-1 text-xs">回复</span>
+                                  <span className="text-gray-500 dark:text-gray-400 mx-1 text-xs">回复</span>
                                   <span className="font-bold text-indigo-600">{repliedTo.author}</span>
                                 </>
                               )}
-                              <span className="text-gray-800 ml-1 whitespace-pre-wrap">：{reply.content}</span>
+                              <span className="text-gray-800 dark:text-gray-200 ml-1 whitespace-pre-wrap">：{reply.content}</span>
                             </div>
                             <div className="flex justify-between items-center mt-0.5">
                               <div className="text-[10px] text-gray-400">
@@ -179,25 +179,25 @@ function CommentSection({ noteId, token, currentUsername }) {
 
   return (
     <div className="w-full">
-      <h3 className="text-xl font-bold text-gray-800 mb-8 flex items-center border-b border-gray-100 pb-4">
+      <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-8 flex items-center border-b border-gray-100 dark:border-slate-700 pb-4">
         <svg className="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
         评论交流区
       </h3>
       
       <div className="mb-10">
         {comments.length === 0 ? (
-          <div className="py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-300 flex flex-col items-center justify-center">
-            <svg className="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-            <p className="text-gray-500 font-medium">暂无评论，快来发布第一条评论吧 <span role="img" aria-label="smile">😊</span></p>
+          <div className="py-8 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-dashed border-gray-300 dark:border-slate-600 flex flex-col items-center justify-center">
+            <svg className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">暂无评论，快来发布第一条评论吧 <span role="img" aria-label="smile">😊</span></p>
           </div>
         ) : (
           renderComments()
         )}
       </div>
 
-      <div className="relative bg-gray-50 p-6 rounded-2xl border border-gray-100">
+      <div className="relative bg-gray-50 dark:bg-slate-800 p-6 rounded-2xl border border-gray-100 dark:border-slate-700">
         {replyTo && (
-          <div className="absolute -top-4 left-6 bg-indigo-100 text-indigo-700 px-4 py-1.5 rounded-full text-xs font-bold flex items-center shadow-sm border border-indigo-200">
+          <div className="absolute -top-4 left-6 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 px-4 py-1.5 rounded-full text-xs font-bold flex items-center shadow-sm border border-indigo-200 dark:border-indigo-900/50">
             正在回复： @{replyTo.author}
             <button onClick={cancelReply} className="ml-2 text-indigo-400 hover:text-indigo-800 p-0.5 rounded-full focus:outline-none transition-colors">
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>

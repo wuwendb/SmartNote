@@ -50,7 +50,7 @@ function NoteQuiz({ noteId, token }) {
   };
 
   return (
-    <div className="bg-white p-8 rounded-2xl shadow-sm border border-indigo-100 relative overflow-hidden">
+    <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-indigo-100 dark:border-indigo-900/30 relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full -z-1"></div>
       
@@ -84,7 +84,7 @@ function NoteQuiz({ noteId, token }) {
           </button>
         </div>
 
-        {error && <div className="text-red-500 text-sm bg-red-50 p-4 rounded-xl border border-red-100">{error}</div>}
+        {error && <div className="text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-4 rounded-xl border border-red-100 dark:border-red-900/40">{error}</div>}
 
         {quizData && (
           <div className="space-y-8 animate-fade-in-up">
@@ -92,7 +92,7 @@ function NoteQuiz({ noteId, token }) {
               const isCorrect = submitted ? answers[qIndex] === q.answer : null;
               
               return (
-                <div key={qIndex} className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <div key={qIndex} className="bg-gray-50 dark:bg-slate-700 rounded-xl p-6 border border-gray-200 dark:border-slate-600">
                   <h4 className="font-bold text-gray-800 mb-4 text-lg">
                     {qIndex + 1}. {q.question}
                   </h4>
@@ -102,10 +102,10 @@ function NoteQuiz({ noteId, token }) {
                       const showAsCorrect = submitted && oIndex === q.answer;
                       const showAsWrong = submitted && isSelected && !showAsCorrect;
 
-                      let btnStyle = "border-gray-200 hover:border-indigo-300 bg-white";
+                      let btnStyle = "border-gray-200 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100";
                       if (isSelected) btnStyle = "border-indigo-500 ring-2 ring-indigo-200 bg-indigo-50 text-indigo-700";
                       if (showAsCorrect) btnStyle = "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200";
-                      if (showAsWrong) btnStyle = "border-red-500 bg-red-50 text-red-700 ring-2 ring-red-200";
+                      if (showAsWrong) btnStyle = "border-red-500 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 ring-2 ring-red-200 dark:ring-red-900/40";
 
                       return (
                         <button
@@ -130,7 +130,7 @@ function NoteQuiz({ noteId, token }) {
                   
                   {/* Explanation Section */}
                   {submitted && (
-                    <div className={`mt-4 p-4 rounded-lg text-sm border ${isCorrect ? 'bg-green-50/50 border-green-100 text-green-800' : 'bg-red-50/50 border-red-100 text-red-800'}`}>
+                    <div className={`mt-4 p-4 rounded-lg text-sm border ${isCorrect ? 'bg-green-50/50 dark:bg-green-900/20 border-green-100 dark:border-green-900/40 text-green-800 dark:text-green-400' : 'bg-red-50/50 dark:bg-red-900/20 border-red-100 dark:border-red-900/40 text-red-800 dark:text-red-400'}`}>
                       <div className="font-bold mb-1 flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         解析：
@@ -164,7 +164,7 @@ function NoteQuiz({ noteId, token }) {
                   </p>
                   <button 
                     onClick={generateQuiz}
-                    className="px-5 py-2 text-indigo-600 border border-indigo-200 bg-white font-bold rounded-lg hover:bg-indigo-50 transition"
+                    className="px-5 py-2 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 bg-white dark:bg-slate-800 font-bold rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
                   >
                     重新生成一套测验
                   </button>

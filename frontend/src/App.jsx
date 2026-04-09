@@ -5,11 +5,22 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import MarkdownToolbar from './components/MarkdownToolbar';
-import CommentSection from './components/CommentSection';
-import NoteChat from './components/NoteChat';
-import NoteQuiz from './components/NoteQuiz';
-import UserProfile from './components/UserProfile';
+import { lazyLoadMultiple } from './utils/lazyLoad.jsx';
+
+// Lazy-load route-level components for code splitting
+const {
+  MarkdownToolbar,
+  CommentSection,
+  NoteChat,
+  NoteQuiz,
+  UserProfile
+} = lazyLoadMultiple({
+  MarkdownToolbar: () => import('./components/MarkdownToolbar'),
+  CommentSection: () => import('./components/CommentSection'),
+  NoteChat: () => import('./components/NoteChat'),
+  NoteQuiz: () => import('./components/NoteQuiz'),
+  UserProfile: () => import('./components/UserProfile')
+});
 
 function App() {
   const [selectedFiles, setSelectedFiles] = useState([]);
